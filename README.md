@@ -47,3 +47,7 @@ DNS: `tpcalldashboard.tafakorpardazan.ir` → `193.151.152.230`.
 - nginx sends a strict CSP (own origin + the API only), HSTS, `X-Frame-Options: DENY`, no-referrer.
 - Authorization is enforced by the backend (`403` for non-admins); the UI check is only for convenience.
 - Deleting a user also removes their call history and closes their live session (backend behavior).
+
+## Repository
+
+Backend: https://gitlab.tafakorpardazan.ir/tafakor-pardazan/tpcall-backend (admin API under `/api/v1/admin`).
