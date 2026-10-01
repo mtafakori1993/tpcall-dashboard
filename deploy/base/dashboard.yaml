@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: tpcall
+  labels: {app: tpcall, component: dashboard, managed-by: gitlab-ci}
+spec:
+  selector: {app: tpcall, component: dashboard}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: tpcall
+  labels: {app: tpcall, component: dashboard, managed-by: gitlab-ci}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: tpcall, component: dashboard}
+  template:
+    metadata:
+      labels: {app: tpcall, component: dashboard}
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets: [{name: gitlab-registry}]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: dashboard
+          image: tpcall-dashboard
+          ports: [{name: http, containerPort: 8080}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 128Mi}
+          readinessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 20
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}   # nginx pid file and temp dirs
+      volumes:
+        - name: tmp
+          emptyDir: {}

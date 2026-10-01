@@ -1,0 +1,101 @@
+/* Vazir (FD = Persian digits), self-hosted from /fonts. License: SIL OFL (public/fonts/OFL.txt) */
+@font-face { font-family: 'Vazir'; font-weight: 300; font-display: swap; src: url('/fonts/Vazir-Light-FD.woff2') format('woff2'); }
+@font-face { font-family: 'Vazir'; font-weight: 400; font-display: swap; src: url('/fonts/Vazir-Regular-FD.woff2') format('woff2'); }
+@font-face { font-family: 'Vazir'; font-weight: 500; font-display: swap; src: url('/fonts/Vazir-Medium-FD.woff2') format('woff2'); }
+@font-face { font-family: 'Vazir'; font-weight: 700; font-display: swap; src: url('/fonts/Vazir-Bold-FD.woff2') format('woff2'); }
+
+/* Tafakor Pardazan palette */
+:root {
+  --tp-deep-navy: #021c25;
+  --tp-dark-teal: #091e27;
+  --tp-teal: #0e3338;
+  --tp-forest-teal: #053a3d;
+  --tp-green-teal: #165a54;
+  --tp-lime: #91da73;
+  --tp-bright-green: #69b437;
+  --tp-forest-green: #23643d;
+  --tp-deep-green: #022c22;
+  --tp-text: #e6f2ee;
+  --tp-text-muted: #9bb8b1;
+}
+
+html, body, #root { height: 100%; margin: 0; }
+body { background: var(--tp-deep-navy); color: var(--tp-text); }
+
+/*
+ * React Spectrum exposes its colors as CSS variables on the Provider element (hashed class names,
+ * single-class specificity). Re-map the gray scale to the teal palette and the accent to the
+ * greens. The repeated selectors raise specificity so these win; the attribute selector also
+ * covers overlays (dialogs, menus, toasts), which React Spectrum renders in a portal with its own
+ * Provider element outside .tp-root.
+ */
+.tp-root.tp-root.tp-root,
+[class*='spectrum--darkest'][class*='spectrum--darkest'][class*='spectrum--darkest'] {
+  --spectrum-global-font-family-base: 'Vazir', system-ui, sans-serif;
+  --spectrum-alias-body-text-font-family: 'Vazir', system-ui, sans-serif;
+  --spectrum-sans-serif-font-family: 'Vazir', system-ui, sans-serif;
+
+  /* gray scale: dark navy -> teal -> light mint */
+  --spectrum-gray-50: #021c25;
+  --spectrum-gray-75: #05222b;
+  --spectrum-gray-100: #091e27;
+  --spectrum-gray-200: #0b2a31;
+  --spectrum-gray-300: #0e3338;
+  --spectrum-gray-400: #0f4046;
+  --spectrum-gray-500: #165a54;
+  --spectrum-gray-600: #2b7068;
+  --spectrum-gray-700: #5d9a8e;
+  --spectrum-gray-800: #9bb8b1;
+  --spectrum-gray-900: #e6f2ee;
+  /* legacy aliases used by a few components */
+  --spectrum-global-color-gray-50: #021c25;
+  --spectrum-global-color-gray-75: #05222b;
+  --spectrum-global-color-gray-100: #091e27;
+  --spectrum-global-color-gray-200: #0b2a31;
+  --spectrum-global-color-gray-300: #0e3338;
+  --spectrum-global-color-gray-400: #0f4046;
+  --spectrum-global-color-gray-500: #165a54;
+  --spectrum-global-color-gray-600: #2b7068;
+  --spectrum-global-color-gray-700: #5d9a8e;
+  --spectrum-global-color-gray-800: #9bb8b1;
+  --spectrum-global-color-gray-900: #e6f2ee;
+
+  /* accent: forest green with light text (7:1), lime for highlights */
+  --spectrum-accent-background-color-default: #23643d;
+  --spectrum-accent-background-color-hover: #2a7a4a;
+  --spectrum-accent-background-color-down: #338f58;
+  --spectrum-accent-background-color-key-focus: #2a7a4a;
+  --spectrum-focus-indicator-color: #91da73;
+  --spectrum-tabs-selection-indicator-color: #91da73;
+  --spectrum-tabs-emphasized-selection-indicator-color: #91da73;
+  --spectrum-tabs-quiet-emphasized-selection-indicator-color: #91da73;
+  --spectrum-blue-400: #2f8a4d;
+  --spectrum-blue-500: #3c9f5c;
+  --spectrum-blue-600: #69b437;
+  --spectrum-blue-700: #91da73;
+  --spectrum-blue-800: #91da73;
+  --spectrum-global-color-blue-400: #2f8a4d;
+  --spectrum-global-color-blue-500: #3c9f5c;
+  --spectrum-global-color-blue-600: #69b437;
+  --spectrum-global-color-blue-700: #91da73;
+  --spectrum-positive-visual-color: #69b437;
+  --spectrum-green-600: #69b437;
+  --spectrum-green-700: #91da73;
+}
+
+.tp-root { min-height: 100%; background: var(--tp-deep-navy); font-family: 'Vazir', system-ui, sans-serif; }
+.tp-card {
+  background: var(--tp-teal);
+  border: 1px solid var(--tp-green-teal);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.tp-card-value { font-size: 28px; font-weight: 700; color: var(--tp-lime); line-height: 1.3; }
+.tp-card-label { font-size: 13px; color: var(--tp-text-muted); }
+.tp-topbar { background: var(--tp-dark-teal); border-bottom: 1px solid var(--tp-green-teal); }
+.tp-brand { font-weight: 700; color: var(--tp-lime); font-size: 18px; }
+.tp-bar { height: 8px; border-radius: 4px; background: var(--tp-forest-teal); overflow: hidden; }
+.tp-bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--tp-bright-green), var(--tp-lime)); }
+.tp-login { max-width: 380px; margin: 0 auto; }
+.tp-muted { color: var(--tp-text-muted); }
+.tp-ltr { direction: ltr; unicode-bidi: plaintext; text-align: right; }

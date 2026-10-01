@@ -1,0 +1,12 @@
+# The tpcall namespace already denies all ingress by default (managed in tpcall-backend).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-traefik-to-dashboard, namespace: tpcall}
+spec:
+  podSelector: {matchLabels: {app: tpcall, component: dashboard}}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+          podSelector: {matchLabels: {app.kubernetes.io/name: traefik}}
+      ports: [{protocol: TCP, port: 8080}]

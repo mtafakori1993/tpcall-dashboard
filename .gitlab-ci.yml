@@ -1,0 +1,79 @@
+# Pipeline: test -> build (image) -> deploy. Runs only on the default branch.
+# Same runners/ServiceAccount model as tpcall-backend (deploys into the "tpcall" namespace).
+
+stages: [test, build, deploy]
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+default:
+  interruptible: true
+
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE
+  KUBE_IMAGE: alpine/k8s:1.36.4
+  BUILDKIT_IMAGE: moby/buildkit:v0.23.0-rootless
+  # Outbound proxy (reachable only from the server network) for npm / Docker Hub.
+  PROXY_URL: http://130.185.123.6:3128
+  NO_PROXY_LIST: gitlab.tafakorpardazan.ir,.tafakorpardazan.ir,localhost,127.0.0.1,10.0.0.0/8,.svc,.cluster.local
+
+test:build:
+  stage: test
+  tags: [build]
+  image: node:22-alpine
+  variables:
+    HTTP_PROXY: $PROXY_URL
+    HTTPS_PROXY: $PROXY_URL
+    NO_PROXY: $NO_PROXY_LIST
+  script:
+    - npm ci --no-audit --no-fund
+    - npm run lint
+    - npm run build
+
+build:image:
+  stage: build
+  tags: [build]
+  image: {name: "$BUILDKIT_IMAGE", entrypoint: [""]}
+  variables:
+    BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
+    DOCKER_CONFIG: /tmp/.docker
+    HTTP_PROXY: $PROXY_URL
+    HTTPS_PROXY: $PROXY_URL
+    NO_PROXY: $NO_PROXY_LIST
+  script:
+    - mkdir -p "$DOCKER_CONFIG"
+    - AUTH=$(printf 'gitlab-ci-token:%s' "$CI_JOB_TOKEN" | base64 | tr -d '\n')
+    - printf '{"auths":{"%s":{"auth":"%s"}}}' "$CI_REGISTRY" "$AUTH" > "$DOCKER_CONFIG/config.json"
+    - >
+      buildctl-daemonless.sh build
+      --frontend dockerfile.v0 --local context=. --local dockerfile=.
+      --opt build-arg:HTTP_PROXY=$PROXY_URL --opt build-arg:HTTPS_PROXY=$PROXY_URL --opt build-arg:NO_PROXY=$NO_PROXY_LIST
+      --output type=image,name=$IMAGE:$CI_COMMIT_SHA,push=true
+    - >
+      buildctl-daemonless.sh build
+      --frontend dockerfile.v0 --local context=. --local dockerfile=.
+      --opt build-arg:HTTP_PROXY=$PROXY_URL --opt build-arg:HTTPS_PROXY=$PROXY_URL --opt build-arg:NO_PROXY=$NO_PROXY_LIST
+      --output type=image,name=$IMAGE:main,push=true
+
+deploy:production:
+  stage: deploy
+  tags: [deploy]
+  image: {name: "$KUBE_IMAGE", entrypoint: [""]}
+  resource_group: production
+  interruptible: false
+  environment: {name: production-dashboard, url: https://tpcalldashboard.tafakorpardazan.ir}
+  script:
+    - cd deploy/overlays/production
+    - 'sed -i "s|newTag:.*|newTag: $CI_COMMIT_SHA|" kustomization.yaml'
+    - kubectl kustomize . > /tmp/rendered.yaml
+    - 'grep -q "kind: Deployment" /tmp/rendered.yaml'
+    - kubectl apply -f /tmp/rendered.yaml
+    - |
+      if ! kubectl -n tpcall rollout status deploy/dashboard --timeout=300s; then
+        echo "Rollout failed - rolling back to the previous revision"
+        kubectl -n tpcall rollout undo deploy/dashboard
+        kubectl -n tpcall rollout status deploy/dashboard --timeout=180s || true
+        exit 1
+      fi
+    - kubectl -n tpcall get deploy,pods -l component=dashboard
