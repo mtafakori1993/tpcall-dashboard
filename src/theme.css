@@ -19,7 +19,15 @@
   --tp-text-muted: #9bb8b1;
 }
 
-html, body, #root { height: 100%; margin: 0; }
+/*
+ * Spectrum sets its own font stack through hashed classes, so force Vazir everywhere
+ * (including portals for dialogs/menus/toasts). Monospace stays for code only.
+ */
+html, body, *, *::before, *::after { font-family: 'Vazir', system-ui, sans-serif !important; }
+code, kbd, pre, samp { font-family: ui-monospace, Menlo, Consolas, monospace !important; }
+
+html, body { margin: 0; min-height: 100%; }
+#root { min-height: 100vh; }
 body { background: var(--tp-deep-navy); color: var(--tp-text); }
 
 /*
@@ -78,6 +86,10 @@ body { background: var(--tp-deep-navy); color: var(--tp-text); }
   --spectrum-global-color-blue-500: #3c9f5c;
   --spectrum-global-color-blue-600: #69b437;
   --spectrum-global-color-blue-700: #91da73;
+  /* disabled controls must stay readable */
+  --spectrum-disabled-background-color: #0f4046;
+  --spectrum-disabled-content-color: #8fb5ac;
+  --spectrum-disabled-border-color: #165a54;
   --spectrum-positive-visual-color: #69b437;
   --spectrum-green-600: #69b437;
   --spectrum-green-700: #91da73;

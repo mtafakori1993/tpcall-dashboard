@@ -26,7 +26,7 @@ export default function Login({ onLoggedIn }: { onLoggedIn: (m: { name: string; 
   }
 
   return (
-    <Flex height="100vh" alignItems="center" justifyContent="center" UNSAFE_style={{ padding: 16 }}>
+    <Flex minHeight="100vh" alignItems="center" justifyContent="center" UNSAFE_style={{ boxSizing: 'border-box', padding: 16 }}>
       <form onSubmit={submit} className="tp-login" style={{ width: '100%' }}>
         <div className="tp-card" style={{ padding: 28 }}>
           <Flex direction="column" gap="size-200" alignItems="center">

@@ -33,10 +33,10 @@ export default function App() {
   }, [])
 
   return (
-    <Provider theme={defaultTheme} colorScheme="dark" locale="fa-IR" UNSAFE_className="tp-root">
+    <Provider theme={defaultTheme} colorScheme="dark" scale="large" locale="fa-IR" UNSAFE_className="tp-root">
       <ToastContainer />
       {booting ? (
-        <Flex height="100vh" alignItems="center" justifyContent="center">
+        <Flex minHeight="100vh" alignItems="center" justifyContent="center">
           <ProgressCircle aria-label="loading" isIndeterminate size="L" />
         </Flex>
       ) : !me ? (
